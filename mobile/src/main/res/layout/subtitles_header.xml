@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/header_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_margin="32dp">
+
+    <io.supercharge.shimmerlayout.ShimmerLayout
+        android:id="@+id/shimmer_header_text"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center_horizontal"
+        app:shimmer_animation_duration="900"
+        app:shimmer_auto_start="true">
+
+        <TextView
+            android:id="@+id/subtitles_header"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="Loading Subtitles"
+            android:textStyle="bold"
+            android:textColor="@color/shimmer_background_color"
+            android:textSize="24sp"
+            android:typeface="sans"
+            app:fontFamily="sans-serif" />
+    </io.supercharge.shimmerlayout.ShimmerLayout>
+</LinearLayout>
+
