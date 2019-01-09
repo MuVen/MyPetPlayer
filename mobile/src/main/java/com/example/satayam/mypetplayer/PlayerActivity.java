@@ -117,6 +117,7 @@ public class PlayerActivity extends AppCompatActivity {
   public static final int ANDROID_BUILD_GINGERBREAD = 9;
 
   public ArrayList<DialogList> dialogLists = new ArrayList<DialogList>();
+  public ArrayList<DialogList> dialogLoadCaptionLists = new ArrayList<DialogList>();
   public ArrayList<DialogList> dialogSpeedLists = new ArrayList<DialogList>();
   public ArrayList<DialogList> dialogOnOffLists = new ArrayList<DialogList>();
   public ArrayList<SubtitleDialogList> subtitleLoadingList = new ArrayList<SubtitleDialogList>();
@@ -135,6 +136,7 @@ public class PlayerActivity extends AppCompatActivity {
 
   //add enum
   public int bottomSheetMenuClickedPosition = -1;
+  public int captionLoadMenuClickedPosition = -1;
   public int playbackSpeedSelectedPosition = 3;//NORMAL
   public  int loopPlayPosition = 1; //OFF
   float playbackSpeedOptions[] = {0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f};
@@ -153,6 +155,10 @@ public class PlayerActivity extends AppCompatActivity {
   private List<WordMeanings> wordmeaningList;
   private RelativeLayout worddefMainContentRL;
 
+  private void createLoadCaptionOptions(){
+      dialogLoadCaptionLists.add(new DialogList(R.drawable.ic_cloud, "Cloud", true, false, ""));
+      dialogLoadCaptionLists.add(new DialogList(R.drawable.ic_smartphone_white_24dp, "Internal Storage", true, false, ""));
+  }
   private void createBottomSheetOptions() {
       dialogLists.add(new DialogList(R.drawable.ic_subtitles_black_24dp, "Captions", true, false, ""));
       dialogLists.add(new DialogList(R.drawable.ic_slow_motion_video_black_24dp, "Playback Speed", true, true, playbackSpeedOptionsStrings[playbackSpeedSelectedPosition]));
@@ -355,6 +361,7 @@ public class PlayerActivity extends AppCompatActivity {
     createBottomSheetOptions();
     createBottomSheetPlaybackSpeedOptions();
     createBottomSheetOnOffOptions();
+    createLoadCaptionOptions();
     createWorddefLayout();
     createOpensubtitlesService();
   }
@@ -563,10 +570,11 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private class DownloadSubtitlesForVideo extends AsyncTask<OpenSubtitleItem, Integer, Long> {
+        private File downloadLocation = null, downloadedFile = null;
         protected Long doInBackground(OpenSubtitleItem... subtitleItem) {
             try {
-                File downloadLocation = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                File downloadedFile = new File(downloadLocation, subtitleItem[0].getSubFileName());
+                downloadLocation = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                downloadedFile = new File(downloadLocation, subtitleItem[0].getSubFileName());
                 mOpenSubtitlesService.downloadSubtitle(
                         getApplicationContext()
                         , subtitleItem[0]
@@ -582,6 +590,7 @@ public class PlayerActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer... progress) {}
 
         protected void onPostExecute(Long result) {
+            addSubtitlesToMedia(Uri.parse("file:///"+downloadedFile.getAbsolutePath()));
             Toast.makeText(PlayerActivity.this, "Syncing Downloaded Subtitle", Toast.LENGTH_SHORT).show();
         }
     }
@@ -589,7 +598,10 @@ public class PlayerActivity extends AppCompatActivity {
     private class GetSubtitlesForVideo extends AsyncTask<String, Integer, Long> {
         protected Long doInBackground(String... string) {
             try {
-                mSubtitleList =  mOpenSubtitlesService.search(OpenSubtitlesService.TemporaryUserAgent, mOpenSubtitlesUrlBuilder.query(string[0]).subLanguageId(string[1]).build());
+                mSubtitleList =  mOpenSubtitlesService.search(OpenSubtitlesService.TemporaryUserAgent, mOpenSubtitlesUrlBuilder
+                        .query(string[0])
+                        .subLanguageId(string[1])
+                        .build());
             }
             catch(Exception e){}
             long listLen = mSubtitleList != null ? mSubtitleList.length : 0;
@@ -635,8 +647,7 @@ public class PlayerActivity extends AppCompatActivity {
               .create();
       subtitleLoadingDialog.show();
       // have get subtitle language from settings. currently hardcoded to en;
-      // new GetSubtitlesForVideo().execute(filetitle, "en");
-      new GetSubtitlesForVideo().execute("Game Of Thrones S01E01", "en");
+      new GetSubtitlesForVideo().execute(filetitle, "eng");
   }
 
   public void onClickOptions(View view){
@@ -666,24 +677,48 @@ public class PlayerActivity extends AppCompatActivity {
                 public void onDismiss(DialogPlus dialog) {
                     Log.d("PlayerActiva","onDismiss "+filepath);
                     if(bottomSheetMenuClickedPosition == 0) {
-                        // launch filechooser.
-
-                        // load captions from the web;
-                        loadCaptionsFromWeb();
-
-                        // commenting for time being
-                        /*FileListerDialog fileListerDialog = FileListerDialog.createFileListerDialog(PlayerActivity.this);
-                        fileListerDialog.setFileFilter(FileListerDialog.FILE_FILTER.FILE_ONLY);
-                        fileListerDialog.setDefaultDir(new File(filepath).getParent());
-                        fileListerDialog.setOnFileSelectedListener(new OnFileSelectedListener() {
-                            @Override
-                            public void onFileSelected(File file, String path) {
-                                //your code here
-                                Log.d("PlayerActiva", "Selected File : "+path);
-                                addSubtitlesToMedia(Uri.parse("file:///"+path));
-                            }
-                        });
-                        fileListerDialog.show();*/
+                        final DialogAdapter loadCaptionsAdapter = new DialogAdapter(PlayerActivity.this, dialogLoadCaptionLists);
+                        DialogPlus captionLoadDialog = DialogPlus.newDialog(PlayerActivity.this)
+                                .setHeader(R.layout.captions_header)
+                                .setAdapter(loadCaptionsAdapter)
+                                .setOnItemClickListener(new OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(@NonNull DialogPlus dialog, @NonNull Object item, @NonNull View view, int position) {
+                                        if(position == 0){
+                                            captionLoadMenuClickedPosition = 0;
+                                            dialog.dismiss();
+                                        } else if(position == 1){
+                                            captionLoadMenuClickedPosition = 1;
+                                            dialog.dismiss();
+                                        }
+                                    }
+                                })
+                                .setOnDismissListener(new OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(@NonNull DialogPlus dialog) {
+                                        if(captionLoadMenuClickedPosition == 0){
+                                            // load captions from the web;
+                                            loadCaptionsFromWeb();
+                                        } else if(captionLoadMenuClickedPosition == 1){
+                                            // launch filechooser.
+                                            FileListerDialog fileListerDialog = FileListerDialog.createFileListerDialog(PlayerActivity.this);
+                                            fileListerDialog.setFileFilter(FileListerDialog.FILE_FILTER.FILE_ONLY);
+                                            fileListerDialog.setDefaultDir(new File(filepath).getParent());
+                                            fileListerDialog.setOnFileSelectedListener(new OnFileSelectedListener() {
+                                                @Override
+                                                public void onFileSelected(File file, String path) {
+                                                    //your code here
+                                                    Log.d("PlayerActiva", "Selected File : "+path);
+                                                    addSubtitlesToMedia(Uri.parse("file:///"+path));
+                                                }
+                                            });
+                                            fileListerDialog.show();
+                                        }
+                                        captionLoadMenuClickedPosition = -1;
+                                    }
+                                })
+                                .create();
+                        captionLoadDialog.show();
                     }
                     else if(bottomSheetMenuClickedPosition == 1) {
                         // launch playback speed.
@@ -759,5 +794,4 @@ public class PlayerActivity extends AppCompatActivity {
       super.onBackPressed();
       finish();
   }
-
 }

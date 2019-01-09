@@ -11,25 +11,42 @@
     <io.supercharge.shimmerlayout.ShimmerLayout
         android:id="@+id/shimmer_header_text"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="65dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
         android:layout_gravity="center_horizontal"
-        app:shimmer_animation_duration="900"
+        app:shimmer_animation_duration="1200"
         app:shimmer_auto_start="true">
-
-        <TextView
-            android:id="@+id/subtitles_header"
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:text="Loading Subtitles"
-            android:textStyle="bold"
-            android:textColor="@color/shimmer_background_color"
-            android:textSize="24sp"
-            android:typeface="sans"
-            app:fontFamily="sans-serif" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/subtitles_header"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="16dp"
+                android:text="Loading Subtitles ... "
+                android:textAllCaps="false"
+                android:textColor="@color/shimmer_background_color"
+                android:textSize="24sp"
+                android:typeface="sans"
+                app:fontFamily="sans-serif" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="powered by Opensubtitles.org"
+                android:textColor="@color/shimmer_background_color"
+                android:textSize="12sp"
+                android:typeface="sans"
+                app:fontFamily="sans-serif" />
+        </RelativeLayout>
     </io.supercharge.shimmerlayout.ShimmerLayout>
 </LinearLayout>
 
