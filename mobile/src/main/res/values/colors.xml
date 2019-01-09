@@ -9,4 +9,6 @@
     <color name="album_title">#4c4c4c</color>
     <color name="shimmer_background_color">#b1b1b1</color>
     <color name="title">#222222</color>
+    <color name="tint_color">#737373</color>
+
 </resources>

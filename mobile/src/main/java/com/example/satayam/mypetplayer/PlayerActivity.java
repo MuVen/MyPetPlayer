@@ -18,7 +18,9 @@ package com.example.satayam.mypetplayer;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -33,11 +35,14 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -92,6 +97,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
+import io.supercharge.shimmerlayout.ShimmerLayout;
 import yogesh.firzen.filelister.FileListerDialog;
 import yogesh.firzen.filelister.OnFileSelectedListener;
 
@@ -122,6 +128,7 @@ public class PlayerActivity extends AppCompatActivity {
   public ArrayList<DialogList> dialogOnOffLists = new ArrayList<DialogList>();
   public ArrayList<SubtitleDialogList> subtitleLoadingList = new ArrayList<SubtitleDialogList>();
   public ArrayList<SubtitleDialogList> subtitleTitleList = new ArrayList<SubtitleDialogList>();
+  public SubtitleDialogAdapter subtitleLoadingDialogAdapter = null;
 
   public DialogPlus subtitleLoadingDialog = null;
   public DialogPlus subtitleTitleDialog = null;
@@ -133,6 +140,7 @@ public class PlayerActivity extends AppCompatActivity {
   private  OpenSubtitlesService mOpenSubtitlesService;
   private OpenSubtitlesUrlBuilder mOpenSubtitlesUrlBuilder;
   private OpenSubtitleItem[] mSubtitleList = null;
+  private String mManualSearchTitle = null;
 
   //add enum
   public int bottomSheetMenuClickedPosition = -1;
@@ -560,12 +568,9 @@ public class PlayerActivity extends AppCompatActivity {
   }
 
     private void prepareSubtitleData() {
-        if(mSubtitleList != null && mSubtitleList.length != 0){
-            subtitleTitleList.clear();
-            for(int i = 0; i < mSubtitleList.length; i++){
-                String subFileName = mSubtitleList[i].getSubFileName();
-                subtitleTitleList.add(new SubtitleDialogList(subFileName));
-            }
+        for(int i = 0; i < mSubtitleList.length; i++){
+            String subFileName = mSubtitleList[i].getSubFileName();
+            subtitleLoadingList.add(new SubtitleDialogList(subFileName));
         }
     }
 
@@ -591,7 +596,7 @@ public class PlayerActivity extends AppCompatActivity {
 
         protected void onPostExecute(Long result) {
             addSubtitlesToMedia(Uri.parse("file:///"+downloadedFile.getAbsolutePath()));
-            Toast.makeText(PlayerActivity.this, "Syncing Downloaded Subtitle", Toast.LENGTH_SHORT).show();
+            Toast.makeText(PlayerActivity.this, "Syncing Downloaded Caption", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -611,43 +616,69 @@ public class PlayerActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer... progress) {}
 
         protected void onPostExecute(Long result) {
-            prepareSubtitleData();
-            if(subtitleLoadingDialog != null){
-                subtitleLoadingDialog.dismiss();
+            ShimmerLayout shimmerLoading = (ShimmerLayout) findViewById(R.id.shimmer_header_text);
+            if(mSubtitleList != null && mSubtitleList.length != 0) {
+                prepareSubtitleData();
+
+                shimmerLoading.stopShimmerAnimation();
+
+                TextView subtitlesHeader = (TextView) findViewById(R.id.subtitles_header);
+                subtitlesHeader.setText("Select Caption");
+                subtitlesHeader.setTextColor(getResources().getColor(R.color.tint_color));
+
+                TextView subtitlesPoweredBy = (TextView) findViewById(R.id.powered_by);
+                subtitlesPoweredBy.setTextColor(getResources().getColor(R.color.tint_color));
+
+                if (subtitleLoadingDialogAdapter != null)
+                    subtitleLoadingDialogAdapter.notifyDataSetChanged();
+            } else {
+                shimmerLoading.setVisibility(View.GONE);
+                final EditText searchManually = (EditText) findViewById(R.id.search_manually);
+                searchManually.setVisibility(View.VISIBLE);
+                searchManually.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                            mManualSearchTitle = searchManually.getText().toString();
+                            subtitleLoadingDialog.dismiss();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
             }
         }
     }
 
-    public void loadCaptionsFromWeb(){
-      final SubtitleDialogAdapter subtitleLoadingDialogAdapter = new SubtitleDialogAdapter(PlayerActivity.this, subtitleLoadingList);
+    public void loadCaptionsFromWeb(String titleMedia){
+      subtitleLoadingList.clear();
+      subtitleLoadingDialogAdapter = new SubtitleDialogAdapter(this, subtitleLoadingList);
       subtitleLoadingDialog = DialogPlus.newDialog(PlayerActivity.this)
               .setHeader(R.layout.subtitles_header)
               .setAdapter(subtitleLoadingDialogAdapter)
+              .setOnItemClickListener(new OnItemClickListener() {
+                  @Override
+                  public void onItemClick(@NonNull DialogPlus dialog, @NonNull Object item, @NonNull View view, int position) {
+                      OpenSubtitleItem downloadItem =  mSubtitleList[position];
+                      Toast.makeText(PlayerActivity.this, "Downloading Caption", Toast.LENGTH_SHORT).show();
+                      new DownloadSubtitlesForVideo().execute(downloadItem);
+                      dialog.dismiss();
+                  }
+              })
               .setOnDismissListener(new OnDismissListener() {
                   @Override
-                  public void onDismiss(DialogPlus dialog) {
-                      final SubtitleDialogAdapter subtitleTitleDialogAdapter = new SubtitleDialogAdapter(PlayerActivity.this, subtitleTitleList);
-                      subtitleTitleDialog = DialogPlus.newDialog(PlayerActivity.this)
-                              .setAdapter(subtitleTitleDialogAdapter)
-                              .setExpanded(false)
-                              .setHeader(R.layout.subtitles_title_header)
-                              .setOnItemClickListener(new OnItemClickListener() {
-                                  @Override
-                                  public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
-                                      //download the subtitle
-                                      OpenSubtitleItem downloadItem =  mSubtitleList[position];
-                                      new DownloadSubtitlesForVideo().execute(downloadItem);
-                                      dialog.dismiss();
-                                  }
-                              })
-                              .create();
-                      subtitleTitleDialog.show();
+                  public void onDismiss(@NonNull DialogPlus dialog) {
+                      if(mManualSearchTitle != null) {
+                          String searchTitle = mManualSearchTitle;
+                          mManualSearchTitle = null;
+                          loadCaptionsFromWeb(searchTitle);
+                      }
                   }
               })
               .create();
       subtitleLoadingDialog.show();
       // have get subtitle language from settings. currently hardcoded to en;
-      new GetSubtitlesForVideo().execute(filetitle, "eng");
+      new GetSubtitlesForVideo().execute(titleMedia, "eng");
   }
 
   public void onClickOptions(View view){
@@ -698,7 +729,7 @@ public class PlayerActivity extends AppCompatActivity {
                                     public void onDismiss(@NonNull DialogPlus dialog) {
                                         if(captionLoadMenuClickedPosition == 0){
                                             // load captions from the web;
-                                            loadCaptionsFromWeb();
+                                            loadCaptionsFromWeb(filetitle);
                                         } else if(captionLoadMenuClickedPosition == 1){
                                             // launch filechooser.
                                             FileListerDialog fileListerDialog = FileListerDialog.createFileListerDialog(PlayerActivity.this);
