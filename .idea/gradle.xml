@@ -31,8 +31,8 @@
             <option value="$PROJECT_DIR$/mobile/ExoPlayer/library/ui" />
             <option value="$PROJECT_DIR$/mobile/ExoPlayer/testutils" />
             <option value="$PROJECT_DIR$/mobile/ExoPlayer/testutils_robolectric" />
-            <option value="$PROJECT_DIR$/mobile/FilesLister" />
             <option value="$PROJECT_DIR$/mobile/dialogplus" />
+            <option value="$PROJECT_DIR$/mobile/library" />
             <option value="$PROJECT_DIR$/playerlibrary" />
             <option value="$PROJECT_DIR$/tv" />
           </set>

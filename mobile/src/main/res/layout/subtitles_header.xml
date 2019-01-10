@@ -3,57 +3,60 @@
     android:id="@+id/header_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:dots="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
-
-    <io.supercharge.shimmerlayout.ShimmerLayout
-        android:id="@+id/shimmer_header_text"
+    <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:layout_gravity="center_horizontal"
-        app:shimmer_animation_duration="1200"
-        app:shimmer_auto_start="true">
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="16dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/linearLayout">
             <TextView
                 android:id="@+id/subtitles_header"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="Loading Subtitles ... "
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:textAllCaps="false"
-                android:textColor="@color/shimmer_background_color"
-                android:textSize="18sp"
-                android:typeface="sans"
-                android:layout_marginTop="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginBottom="16dp"
-                app:fontFamily="sans-serif" />
-
-            <TextView
-                android:id="@+id/powered_by"
+                android:text="Loading Captions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:text="powered by Opensubtitles.org"
-                android:textColor="@color/shimmer_background_color"
-                android:textSize="12sp"
-                android:typeface="sans"
-                android:layout_marginTop="22dp"
-                app:fontFamily="sans-serif" />
-        </RelativeLayout>
-    </io.supercharge.shimmerlayout.ShimmerLayout>
+                android:textColor="@color/tint_color"
+                android:textSize="18sp" />
+
+            <pl.tajchert.waitingdots.DotsTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/dots"
+                android:layout_marginLeft="4dp"
+                android:textSize="18sp"
+                android:textColor="@color/tint_color"
+                dots:autoplay="true"
+                dots:period="1000"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/powered_by"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="powered by Opensubtitles.org"
+            android:textColor="@color/tint_color"
+            android:textSize="12sp"
+            android:typeface="sans"
+            android:layout_marginRight="16dp"
+            app:fontFamily="sans-serif" />
+    </RelativeLayout>
 
     <EditText
         android:id="@+id/search_manually"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:hint="Captions Not Found. Search Manually ..."
+        android:hint="Search Manually ..."
         android:imeOptions="actionSearch"
         android:textSize="16sp"
         android:visibility="gone"

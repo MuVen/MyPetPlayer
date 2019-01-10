@@ -77,6 +77,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.masterwok.opensubtitlesandroid.OpenSubtitlesUrlBuilder;
 import com.masterwok.opensubtitlesandroid.models.OpenSubtitleItem;
 import com.masterwok.opensubtitlesandroid.services.OpenSubtitlesService;
+import com.obsez.android.lib.filechooser.ChooserDialog;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.OnDismissListener;
 import com.orhanobut.dialogplus.OnItemClickListener;
@@ -98,8 +99,6 @@ import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
 import io.supercharge.shimmerlayout.ShimmerLayout;
-import yogesh.firzen.filelister.FileListerDialog;
-import yogesh.firzen.filelister.OnFileSelectedListener;
 
 
 /**
@@ -165,7 +164,7 @@ public class PlayerActivity extends AppCompatActivity {
 
   private void createLoadCaptionOptions(){
       dialogLoadCaptionLists.add(new DialogList(R.drawable.ic_cloud, "Cloud", true, false, ""));
-      dialogLoadCaptionLists.add(new DialogList(R.drawable.ic_smartphone_white_24dp, "Internal Storage", true, false, ""));
+      dialogLoadCaptionLists.add(new DialogList(R.drawable.ic_smartphone, "Internal Storage", true, false, ""));
   }
   private void createBottomSheetOptions() {
       dialogLists.add(new DialogList(R.drawable.ic_subtitles_black_24dp, "Captions", true, false, ""));
@@ -574,6 +573,18 @@ public class PlayerActivity extends AppCompatActivity {
         }
     }
 
+    public void setImmersiveMode(View view )
+    {
+        view.setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_IMMERSIVE |
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                        View.SYSTEM_UI_FLAG_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        );
+    }
+
     private class DownloadSubtitlesForVideo extends AsyncTask<OpenSubtitleItem, Integer, Long> {
         private File downloadLocation = null, downloadedFile = null;
         protected Long doInBackground(OpenSubtitleItem... subtitleItem) {
@@ -616,24 +627,17 @@ public class PlayerActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer... progress) {}
 
         protected void onPostExecute(Long result) {
-            ShimmerLayout shimmerLoading = (ShimmerLayout) findViewById(R.id.shimmer_header_text);
+            TextView subtitlesHeader = (TextView) findViewById(R.id.subtitles_header);
+            final EditText searchManually = (EditText) findViewById(R.id.search_manually);
+            setImmersiveMode(searchManually);
+            findViewById(R.id.dots).setVisibility(View.GONE);
             if(mSubtitleList != null && mSubtitleList.length != 0) {
                 prepareSubtitleData();
-
-                shimmerLoading.stopShimmerAnimation();
-
-                TextView subtitlesHeader = (TextView) findViewById(R.id.subtitles_header);
                 subtitlesHeader.setText("Select Caption");
-                subtitlesHeader.setTextColor(getResources().getColor(R.color.tint_color));
-
-                TextView subtitlesPoweredBy = (TextView) findViewById(R.id.powered_by);
-                subtitlesPoweredBy.setTextColor(getResources().getColor(R.color.tint_color));
-
                 if (subtitleLoadingDialogAdapter != null)
                     subtitleLoadingDialogAdapter.notifyDataSetChanged();
             } else {
-                shimmerLoading.setVisibility(View.GONE);
-                final EditText searchManually = (EditText) findViewById(R.id.search_manually);
+                subtitlesHeader.setText("No Captions Found");
                 searchManually.setVisibility(View.VISIBLE);
                 searchManually.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                     @Override
@@ -732,18 +736,21 @@ public class PlayerActivity extends AppCompatActivity {
                                             loadCaptionsFromWeb(filetitle);
                                         } else if(captionLoadMenuClickedPosition == 1){
                                             // launch filechooser.
-                                            FileListerDialog fileListerDialog = FileListerDialog.createFileListerDialog(PlayerActivity.this);
-                                            fileListerDialog.setFileFilter(FileListerDialog.FILE_FILTER.FILE_ONLY);
-                                            fileListerDialog.setDefaultDir(new File(filepath).getParent());
-                                            fileListerDialog.setOnFileSelectedListener(new OnFileSelectedListener() {
-                                                @Override
-                                                public void onFileSelected(File file, String path) {
-                                                    //your code here
-                                                    Log.d("PlayerActiva", "Selected File : "+path);
-                                                    addSubtitlesToMedia(Uri.parse("file:///"+path));
-                                                }
-                                            });
-                                            fileListerDialog.show();
+                                            new ChooserDialog().with(PlayerActivity.this)
+                                                    .withFilter(false, false, "srt", "ssa", "xml","dfxp","ttml","vtt")
+                                                    .withStartFile(new File(filepath).getParent())
+                                                    .withResources(R.string.select_caption, R.string.title_choose, R.string.dialog_cancel)
+                                                    .withFileIconsRes(false, R.drawable.ic_insert_file, R.drawable.ic_insert_folder)
+                                                    .withChosenListener(new ChooserDialog.Result() {
+                                                        @Override
+                                                        public void onChoosePath(String path, File pathFile) {
+                                                            addSubtitlesToMedia(Uri.parse("file:///"+path));
+                                                            Toast.makeText(PlayerActivity.this, "Syncing Caption", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    })
+                                                    .build()
+                                                    .show();
+
                                         }
                                         captionLoadMenuClickedPosition = -1;
                                     }
