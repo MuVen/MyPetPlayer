@@ -1,0 +1,41 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:1:1-9:12
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:1:1-9:12
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:1:1-9:12
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:1:1-9:12
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:1:1-9:12
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:1:1-9:12
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:1:1-9:12
+	package
+		ADDED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:2:11-54
+		INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+		INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+		ADDED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:1:1-9:12
+		INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+	android:versionCode
+		INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+		ADDED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:1:1-9:12
+		INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:1:11-69
+application
+ADDED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:4:3-7:17
+	android:allowBackup
+		ADDED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml:4:16-42
+uses-sdk
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+		ADDED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+		INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+		ADDED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
+		INJECTED from C:\MuVen\AndroidSamples\MyPetPlayerGit\mobile\library\src\main\AndroidManifest.xml
